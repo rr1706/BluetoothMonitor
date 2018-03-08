@@ -33,7 +33,6 @@ public class App {
 		App app = new App();
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
-			System.out.println("Got Local Device " + localDevice.getFriendlyName());
 			agent = localDevice.getDiscoveryAgent();
 			System.out.println("Got discovery agent: " + agent.toString() + ", starting discovery...");
 
@@ -64,11 +63,9 @@ public class App {
 				} catch (InterruptedException u) {
 				}
 			}
-
 		} catch (BluetoothStateException e) {
 			e.printStackTrace();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}

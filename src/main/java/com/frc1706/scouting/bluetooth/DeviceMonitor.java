@@ -17,9 +17,14 @@ import javax.microedition.io.StreamConnection;
 public class DeviceMonitor extends Thread {
 	private final StreamConnection connection;
 	private final boolean done = false;
+	private String message = null;
 
 	public DeviceMonitor(StreamConnection conn) {
 		connection = conn;
+	}
+
+	public void sendMessage(String message) {
+		this.message = message;
 	}
 
 	@Override
@@ -35,6 +40,10 @@ public class DeviceMonitor extends Thread {
 					byte[] buf = new byte[extraBytesAvailable];
 					int exBytesRead = inStream.read(buf, 0, extraBytesAvailable);
 					System.err.println("Extra input found: " + new String(buf, 0, exBytesRead));
+				}
+				if (message != null) {
+					pWriter.println("toast " + message);
+					pWriter.flush();
 				}
 				pWriter.println("list");
 				pWriter.flush();

@@ -24,6 +24,12 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 		this.agent = agent;
 	}
 
+	public void sendMessage(String message) {
+		if (monitor != null && monitor.isAlive()) {
+			monitor.sendMessage(message);
+		}
+	}
+
 	@Override
 	public void run() {
 		while (!done) {
