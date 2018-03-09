@@ -65,6 +65,13 @@ public class App {
 									}
 								}
 							});
+
+							try {
+								Thread.sleep(15000);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 							System.out.println(
 									"Found: " + dev.getBluetoothAddress() + " (" + dev.getFriendlyName(false) + ")");
 						}
@@ -78,7 +85,7 @@ public class App {
 				}
 
 				try {
-					Thread.sleep(30000);
+					Thread.sleep(10000);
 				} catch (InterruptedException u) {
 				}
 				try {
