@@ -25,9 +25,13 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 	}
 
 	public void sendMessage(String message) {
-		if (monitor != null && monitor.isAlive()) {
+		if (isOnline()) {
 			monitor.sendMessage(message);
 		}
+	}
+
+	public boolean isOnline() {
+		return monitor != null && monitor.isAlive();
 	}
 
 	@Override
@@ -51,7 +55,7 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 				} else {
 					try {
 						StreamConnection streamConnection = (StreamConnection) Connector.open(connectionURL);
-						monitor = new DeviceMonitor(streamConnection);
+						monitor = new DeviceMonitor(streamConnection, remoteDevice);
 						monitor.start();
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -99,6 +103,19 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 			connectionURL = servRecord[0].getConnectionURL(0, false);
 			System.out.println("Found: " + connectionURL + " on device " + remoteDevice.getBluetoothAddress());
 		}
+	}
+
+	public String getDeviceName() {
+		String ret = "";
+		try {
+			ret = remoteDevice.getFriendlyName(false);
+			if (ret == null || ret.trim().length() == 0) {
+				ret = remoteDevice.getBluetoothAddress();
+			}
+		} catch (Exception e) {
+			return remoteDevice.getBluetoothAddress();
+		}
+		return ret;
 	}
 
 }

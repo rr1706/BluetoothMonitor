@@ -12,15 +12,18 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.bluetooth.RemoteDevice;
 import javax.microedition.io.StreamConnection;
 
 public class DeviceMonitor extends Thread {
 	private final StreamConnection connection;
 	private final boolean done = false;
 	private String message = null;
+	private RemoteDevice device = null;
 
-	public DeviceMonitor(StreamConnection conn) {
+	public DeviceMonitor(StreamConnection conn, RemoteDevice remoteDevice) {
 		connection = conn;
+		device = remoteDevice;
 	}
 
 	public void sendMessage(String message) {
@@ -30,6 +33,8 @@ public class DeviceMonitor extends Thread {
 	@Override
 	public void run() {
 		try {
+			System.out.println("Device " + device.getBluetoothAddress() + ":" + device.getFriendlyName(false)
+					+ " has come online.");
 			OutputStream outStream = connection.openOutputStream();
 			InputStream inStream = connection.openInputStream();
 			PrintWriter pWriter = new PrintWriter(new OutputStreamWriter(outStream));
@@ -44,6 +49,7 @@ public class DeviceMonitor extends Thread {
 				if (message != null) {
 					pWriter.println("toast " + message);
 					pWriter.flush();
+					message = null;
 				}
 				pWriter.println("list");
 				pWriter.flush();
@@ -112,6 +118,8 @@ public class DeviceMonitor extends Thread {
 			}
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
+		} finally {
+			System.out.println("Device " + device.getBluetoothAddress() + " has gone offline.");
 		}
 
 	}

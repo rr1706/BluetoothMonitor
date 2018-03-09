@@ -1,5 +1,6 @@
 package com.frc1706.scouting.bluetooth;
 
+import java.awt.EventQueue;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,20 +18,30 @@ import javax.bluetooth.UUID;
  */
 public class App {
 
-	private static Object lock = new Object();
-	private static Vector<RemoteDevice> vecDevices = new Vector();
-	private static String connectionURL = null;
+	private static Vector<RemoteDevice> vecDevices = new Vector<RemoteDevice>();
 	private static Map<String, DeviceWatcher> deviceWatchers = new HashMap<String, DeviceWatcher>();
 	private static DiscoveryAgent agent = null;
 	static final UUID uuid = new UUID("0000107300001000800000805F9B34F7", false);
 	public static String eventID = "2018-STL";
+	static AppWindow window;
 
 	public static void main(String[] args) {
 		System.out.println("Starting...");
 		if (args.length > 0) {
 			eventID = args[0];
 		}
-		App app = new App();
+
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					window = new AppWindow();
+					window.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
 			agent = localDevice.getDiscoveryAgent();
@@ -42,12 +53,20 @@ public class App {
 					for (RemoteDevice dev : preknownDevices) {
 						if (!vecDevices.contains(dev)) {
 							vecDevices.add(dev);
-							DeviceWatcher watcher = new DeviceWatcher(dev, agent);
+							final DeviceWatcher watcher = new DeviceWatcher(dev, agent);
 							watcher.start();
 							deviceWatchers.put(dev.getBluetoothAddress(), watcher);
+							EventQueue.invokeLater(new Runnable() {
+								public void run() {
+									try {
+										window.addDeviceWatcher(watcher);
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								}
+							});
 							System.out.println(
 									"Found: " + dev.getBluetoothAddress() + " (" + dev.getFriendlyName(false) + ")");
-
 						}
 					}
 				}
@@ -62,11 +81,21 @@ public class App {
 					Thread.sleep(30000);
 				} catch (InterruptedException u) {
 				}
+				try {
+					window.updateDeviceStatus();
+				} catch (Exception e) {
+				}
 			}
 		} catch (BluetoothStateException e) {
 			e.printStackTrace();
 		} catch (IOException e1) {
 			e1.printStackTrace();
+		}
+	}
+
+	public static void sendMessageToAll(String message) {
+		for (DeviceWatcher watcher : deviceWatchers.values()) {
+			watcher.sendMessage(message);
 		}
 	}
 
