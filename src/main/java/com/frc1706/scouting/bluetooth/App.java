@@ -13,7 +13,7 @@ import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.UUID;
 
 /**
- * Hello world!
+ * Bluetooth Device Monitor.
  *
  */
 public class App {

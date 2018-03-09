@@ -1,5 +1,6 @@
 package com.frc1706.scouting.bluetooth;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
@@ -92,6 +93,7 @@ public class AppWindow {
 		index.name = watcher.getDeviceName();
 		index.watcher = watcher;
 		index.statusLabel = new JLabel("Offline");
+		index.statusLabel.setForeground(Color.RED);
 		GridBagConstraints gbc_status = new GridBagConstraints();
 		gbc_status.insets = new Insets(0, 0, 0, 5);
 		gbc_status.gridx = 1;
@@ -108,6 +110,7 @@ public class AppWindow {
 				try {
 					for (DeviceIndex idx : deviceList) {
 						idx.statusLabel.setText(idx.watcher.isOnline() ? "Online" : "Offline");
+						idx.statusLabel.setForeground(idx.watcher.isOnline() ? Color.GREEN : Color.RED);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
