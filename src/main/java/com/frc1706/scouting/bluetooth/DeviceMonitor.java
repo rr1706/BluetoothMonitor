@@ -17,7 +17,7 @@ import javax.microedition.io.StreamConnection;
 
 public class DeviceMonitor extends Thread {
 	private final StreamConnection connection;
-	private final boolean done = false;
+	private boolean done = false;
 	private String message = null;
 	private RemoteDevice device = null;
 

@@ -85,7 +85,7 @@ public class App {
 				}
 
 				try {
-					Thread.sleep(10000);
+					Thread.sleep(5000);
 				} catch (InterruptedException u) {
 				}
 				try {
