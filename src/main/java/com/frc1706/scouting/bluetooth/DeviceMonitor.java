@@ -20,20 +20,27 @@ public class DeviceMonitor extends Thread {
 	private boolean done = false;
 	private String message = null;
 	private RemoteDevice device = null;
+	private String deviceName = null;
 
 	public DeviceMonitor(StreamConnection conn, RemoteDevice remoteDevice) {
 		connection = conn;
 		device = remoteDevice;
+		try {
+			deviceName = device.getFriendlyName(false);
+		} catch (IOException ioe) {
+
+		}
 	}
 
 	public void sendMessage(String message) {
+		System.err.println("Message queued for device " + message);
 		this.message = message;
 	}
 
 	@Override
 	public void run() {
 		try {
-			System.out.println("Device " + device.getBluetoothAddress() + ":" + device.getFriendlyName(false)
+			System.out.println("Device " + device.getBluetoothAddress() + ":" + deviceName
 					+ " has come online.");
 			OutputStream outStream = connection.openOutputStream();
 			InputStream inStream = connection.openInputStream();
@@ -47,6 +54,7 @@ public class DeviceMonitor extends Thread {
 					System.err.println("Extra input found: " + new String(buf, 0, exBytesRead));
 				}
 				if (message != null) {
+					System.err.println("Sending toast message: " + message);
 					pWriter.println("toast " + message);
 					pWriter.flush();
 					message = null;
@@ -112,14 +120,17 @@ public class DeviceMonitor extends Thread {
 					}
 				}
 				try {
-					sleep(10000);
+					sleep(2000);
 				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 			}
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
+			if (ioe.getMessage().equals("")) {
+				ioe.printStackTrace();
+			}
 		} finally {
-			System.out.println("Device " + device.getBluetoothAddress() + " has gone offline.");
+			System.out.println("Device " + device.getBluetoothAddress() + ":" + deviceName + " has gone offline.");
 		}
 
 	}

@@ -67,7 +67,7 @@ public class App {
 							});
 
 							try {
-								Thread.sleep(15000);
+								Thread.sleep(5000);
 							} catch (InterruptedException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -85,7 +85,7 @@ public class App {
 				}
 
 				try {
-					Thread.sleep(5000);
+					Thread.sleep(2000);
 				} catch (InterruptedException u) {
 				}
 				try {

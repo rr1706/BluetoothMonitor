@@ -18,6 +18,7 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 	private String connectionURL = "";
 	private boolean isSearching = false;
 	private final DiscoveryAgent agent;
+	private String lastMessage = null;
 
 	public DeviceWatcher(RemoteDevice remoteDevice, DiscoveryAgent agent) {
 		this.remoteDevice = remoteDevice;
@@ -27,6 +28,8 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 	public void sendMessage(String message) {
 		if (isOnline()) {
 			monitor.sendMessage(message);
+		} else {
+			lastMessage = message;
 		}
 	}
 
@@ -57,6 +60,10 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 						StreamConnection streamConnection = (StreamConnection) Connector.open(connectionURL);
 						monitor = new DeviceMonitor(streamConnection, remoteDevice);
 						monitor.start();
+						if (lastMessage != null) {
+							monitor.sendMessage(lastMessage);
+							lastMessage = null;
+						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -64,7 +71,7 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 			}
 			// Sleep a bit before continuing.
 			try {
-				sleep(10000);
+				sleep(2000);
 			} catch (InterruptedException e) {
 
 			}

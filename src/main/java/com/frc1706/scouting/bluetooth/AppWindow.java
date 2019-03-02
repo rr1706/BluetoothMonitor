@@ -68,6 +68,7 @@ public class AppWindow {
 		btnSendMessage.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				App.sendMessageToAll(textField.getText());
+				textField.setText("");
 			}
 		});
 		GridBagConstraints gbc_btnSendMessage = new GridBagConstraints();
