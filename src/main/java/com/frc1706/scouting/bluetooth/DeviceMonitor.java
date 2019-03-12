@@ -120,7 +120,7 @@ public class DeviceMonitor extends Thread {
 					}
 				}
 				try {
-					sleep(2000);
+					sleep(12000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

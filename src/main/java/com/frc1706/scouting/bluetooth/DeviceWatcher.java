@@ -71,7 +71,7 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 			}
 			// Sleep a bit before continuing.
 			try {
-				sleep(2000);
+				sleep(12000);
 			} catch (InterruptedException e) {
 
 			}

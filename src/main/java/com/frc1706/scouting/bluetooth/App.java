@@ -2,9 +2,7 @@ package com.frc1706.scouting.bluetooth;
 
 import java.awt.EventQueue;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
@@ -49,6 +47,16 @@ public class App {
 
 			while (true) {
 				RemoteDevice[] preknownDevices = agent.retrieveDevices(DiscoveryAgent.PREKNOWN);
+				Arrays.sort(preknownDevices, new Comparator<RemoteDevice>() {
+					@Override
+					public int compare(RemoteDevice o1, RemoteDevice o2) {
+						try {
+							return o1.getFriendlyName(false).compareTo(o2.getFriendlyName(false));
+						} catch (IOException ioe) {
+							return 0;
+						}
+					}
+				});
 				if (preknownDevices != null && preknownDevices.length > 0) {
 					for (RemoteDevice dev : preknownDevices) {
 						if (!vecDevices.contains(dev)) {
