@@ -66,7 +66,7 @@ public class DeviceMonitor extends Thread {
 				String lineRead;
 				Collection<RemoteFile> remoteFiles = new ArrayList<RemoteFile>();
 				while ((lineRead = bReader2.readLine()) != null) {
-					System.out.println(lineRead);
+					System.out.println(deviceName + ":" + lineRead);
 					if ("---".equalsIgnoreCase(lineRead)) {
 						break;
 					} else {
@@ -116,6 +116,8 @@ public class DeviceMonitor extends Thread {
 								pWriter.println("delete " + file.getName());
 								pWriter.flush();
 							}
+						} else {
+							System.out.println("File " + file.getName() + " from tablet " + deviceName + " already exists locally.");
 						}
 					}
 				}
