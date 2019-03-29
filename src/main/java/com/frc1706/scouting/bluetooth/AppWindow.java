@@ -8,7 +8,10 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -20,6 +23,8 @@ public class AppWindow {
 
 	private JFrame frmBluetoothDeviceMonitor;
 	private JTextField textField;
+	private JTextField eventField;
+	private JTextField baseDirField;
 
 	private class DeviceIndex {
 		String name;
@@ -27,7 +32,7 @@ public class AppWindow {
 		JLabel statusLabel;
 	}
 
-	private int lastRowUsed = 1;
+	private int lastRowUsed = 2;
 	private final List<DeviceIndex> deviceList = new ArrayList<AppWindow.DeviceIndex>();
 
 	/**
@@ -61,6 +66,7 @@ public class AppWindow {
 		gbc_textField.fill = GridBagConstraints.HORIZONTAL;
 		gbc_textField.gridx = 0;
 		gbc_textField.gridy = 0;
+		gbc_textField.anchor = GridBagConstraints.PAGE_START;
 		frmBluetoothDeviceMonitor.getContentPane().add(textField, gbc_textField);
 		textField.setColumns(10);
 
@@ -75,7 +81,31 @@ public class AppWindow {
 		gbc_btnSendMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_btnSendMessage.gridx = 1;
 		gbc_btnSendMessage.gridy = 0;
+		gbc_btnSendMessage.anchor = GridBagConstraints.PAGE_START;
 		frmBluetoothDeviceMonitor.getContentPane().add(btnSendMessage, gbc_btnSendMessage);
+
+		baseDirField = new JTextField();
+		GridBagConstraints gbc_baseDirField = new GridBagConstraints();
+		gbc_baseDirField.insets = new Insets(0, 0, 5, 5);
+		gbc_baseDirField.fill = GridBagConstraints.HORIZONTAL;
+		gbc_baseDirField.gridx = 0;
+		gbc_baseDirField.gridy = 1;
+		frmBluetoothDeviceMonitor.getContentPane().add(baseDirField, gbc_baseDirField);
+		baseDirField.setColumns(10);
+		baseDirField.setText((new File(System.getProperty("user.home"), "ScoutingData")).getAbsolutePath());
+		App.baseDirField = baseDirField;
+
+		eventField = new JTextField();
+		GridBagConstraints gbc_eventField = new GridBagConstraints();
+		gbc_eventField.insets = new Insets(0, 0, 5, 5);
+		gbc_eventField.fill = GridBagConstraints.HORIZONTAL;
+		gbc_eventField.gridx = 1;
+		gbc_eventField.gridy = 1;
+		frmBluetoothDeviceMonitor.getContentPane().add(eventField, gbc_eventField);
+		eventField.setColumns(10);
+		eventField.setText(Calendar.getInstance().get(Calendar.YEAR) + "-");
+		App.eventNameField = eventField;
+
 	}
 
 	public void setVisible(boolean v) {

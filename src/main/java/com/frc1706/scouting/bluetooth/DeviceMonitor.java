@@ -83,8 +83,7 @@ public class DeviceMonitor extends Thread {
 
 				if (remoteFiles.size() > 0) {
 					for (RemoteFile file : remoteFiles) {
-						File baseDir = new File(System.getProperty("user.home"), "ScoutingData");
-						File dataDir = new File(baseDir, App.eventID);
+						File dataDir = new File(App.baseDirField.getText(), App.eventNameField.getText());
 						if (!dataDir.exists()) {
 							dataDir.mkdirs();
 						}
