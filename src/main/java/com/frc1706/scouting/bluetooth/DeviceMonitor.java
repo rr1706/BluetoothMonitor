@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -17,7 +19,7 @@ import javax.microedition.io.StreamConnection;
 
 public class DeviceMonitor extends Thread {
 	private final StreamConnection connection;
-	private boolean done = false;
+	private final boolean done = false;
 	private String message = null;
 	private RemoteDevice device = null;
 	private String deviceName = null;
@@ -28,7 +30,7 @@ public class DeviceMonitor extends Thread {
 		try {
 			deviceName = device.getFriendlyName(false);
 		} catch (IOException ioe) {
-
+			deviceName = device.getBluetoothAddress();
 		}
 	}
 
@@ -37,13 +39,58 @@ public class DeviceMonitor extends Thread {
 		this.message = message;
 	}
 
+	public void combineFiles() {
+		System.out.println("Preparing to combine data files.");
+		File dataDir = new File(App.baseDirField.getText(), App.eventNameField.getText());
+		if (!dataDir.exists()) {
+			return;
+		}
+		File catPy = new File(dataDir, "cat.py");
+		if (!catPy.exists()) {
+			File catPySrc = new File(Paths.get(".").toAbsolutePath().normalize().toFile(), "cat.py");
+			if (!catPySrc.exists()) {
+				System.err.println("Unable to locate cat.py at " + catPySrc.getAbsolutePath());
+				return;
+			}
+			try {
+				Files.copy(catPySrc.toPath(), catPy.toPath());
+			} catch (IOException e) {
+				System.err.println("Unable to copy cat.py to " + catPy.getAbsolutePath());
+				e.printStackTrace();
+				return;
+			}
+		}
+		ProcessBuilder pb = new ProcessBuilder("python", "cat.py", App.eventNameField.getText() + "_cat.csv");
+		pb.directory(dataDir);
+		try {
+			System.out.println("Running cat.py");
+			Process p = pb.start();
+			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String inStr;
+			while ((inStr = in.readLine()) != null) {
+				System.out.println(inStr);
+			}
+			p.waitFor();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			System.out.println("Finished combining files.");
+		}
+	}
+
 	@Override
 	public void run() {
+		OutputStream outStream = null;
+		InputStream inStream = null;
 		try {
-			System.out.println("Device " + device.getBluetoothAddress() + ":" + deviceName
-					+ " has come online.");
-			OutputStream outStream = connection.openOutputStream();
-			InputStream inStream = connection.openInputStream();
+			System.out.println("Device " + device.getBluetoothAddress() + ":" + deviceName + " has come online.");
+			outStream = connection.openOutputStream();
+			inStream = connection.openInputStream();
 			PrintWriter pWriter = new PrintWriter(new OutputStreamWriter(outStream));
 			BufferedReader bReader2 = new BufferedReader(new InputStreamReader(inStream));
 			while (!done) {
@@ -116,7 +163,8 @@ public class DeviceMonitor extends Thread {
 								pWriter.flush();
 							}
 						} else {
-							System.out.println("File " + file.getName() + " from tablet " + deviceName + " already exists locally.");
+							System.out.println("File " + file.getName() + " from tablet " + deviceName
+									+ " already exists locally.");
 						}
 					}
 				}
@@ -132,6 +180,25 @@ public class DeviceMonitor extends Thread {
 			}
 		} finally {
 			System.out.println("Device " + device.getBluetoothAddress() + ":" + deviceName + " has gone offline.");
+			combineFiles();
+			if (inStream != null) {
+				try {
+					inStream.close();
+				} catch (Exception e) {
+				}
+			}
+			if (outStream != null) {
+				try {
+					outStream.close();
+				} catch (Exception e) {
+				}
+			}
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (Exception e) {
+				}
+			}
 		}
 
 	}

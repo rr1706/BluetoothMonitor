@@ -20,6 +20,8 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 	private final DiscoveryAgent agent;
 	private String lastMessage = null;
 
+	private static int searchCount = 0;
+
 	public DeviceWatcher(RemoteDevice remoteDevice, DiscoveryAgent agent) {
 		this.remoteDevice = remoteDevice;
 		this.agent = agent;
@@ -44,15 +46,22 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 			if (monitor == null || !monitor.isAlive()) {
 				if (connectionURL == null || connectionURL.length() == 0) {
 					if (!isSearching) {
-						try {
-							isSearching = true;
-							UUID[] uuidSet = new UUID[1];
-							uuidSet[0] = App.uuid;
-							agent.searchServices(null, uuidSet, remoteDevice, this);
-						} catch (BluetoothStateException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-							isSearching = false;
+						if (searchCount < 6) {
+							try {
+								// System.out.println("Searching for services on
+								// " + getDeviceName());
+								UUID[] uuidSet = new UUID[1];
+								uuidSet[0] = App.uuid;
+								agent.searchServices(null, uuidSet, remoteDevice, this);
+								isSearching = true;
+								searchCount++;
+							} catch (BluetoothStateException e) {
+								System.err.println("Unable to search for services on " + getDeviceName());
+								e.printStackTrace();
+								isSearching = false;
+								searchCount--;
+							} finally {
+							}
 						}
 					}
 				} else {
@@ -94,21 +103,20 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 	}
 
 	public void deviceDiscovered(RemoteDevice arg0, DeviceClass arg1) {
-
 	}
 
 	public void inquiryCompleted(int arg0) {
-
 	}
 
 	public void serviceSearchCompleted(int arg0, int arg1) {
 		isSearching = false;
+		searchCount--;
 	}
 
 	public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
 		if (servRecord != null && servRecord.length > 0) {
 			connectionURL = servRecord[0].getConnectionURL(0, false);
-			System.out.println("Found: " + connectionURL + " on device " + remoteDevice.getBluetoothAddress());
+			System.out.println("Found: " + connectionURL + " on device " + getDeviceName());
 		}
 	}
 
