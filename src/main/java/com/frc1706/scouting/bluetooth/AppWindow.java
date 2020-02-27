@@ -8,6 +8,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +54,17 @@ public class AppWindow {
 	 */
 	private void initialize(String eventName) {
 		frmBluetoothDeviceMonitor = new JFrame();
+		frmBluetoothDeviceMonitor.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent evt) {
+				App.stopSearching();
+				try {
+					Thread.sleep(30000);
+				} catch (InterruptedException ee) {
+				}
+				System.exit(0);
+			}
+		});
 		frmBluetoothDeviceMonitor.setMinimumSize(new Dimension(500, 300));
 		frmBluetoothDeviceMonitor.setTitle("Bluetooth Device Monitor");
 		frmBluetoothDeviceMonitor.setBounds(100, 100, 450, 300);

@@ -41,6 +41,10 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 
 	@Override
 	public void run() {
+		try {
+			Thread.sleep((int) (Math.random() * 25));
+		} catch (InterruptedException e) {
+		}
 		while (!done) {
 
 			if (monitor == null || !monitor.isAlive()) {
@@ -84,6 +88,9 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 			} catch (InterruptedException e) {
 
 			}
+		}
+		if (monitor != null && monitor.isAlive()) {
+			monitor.shutdown();
 		}
 	}
 

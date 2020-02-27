@@ -47,6 +47,12 @@ public class App {
 		}
 	}
 
+	public static void stopSearching() {
+		if (searcher != null) {
+			searcher.shutdown();
+		}
+	}
+
 	public static void sendMessageToAll(String message) {
 		if (searcher != null) {
 			searcher.sendMessageToAll(message);

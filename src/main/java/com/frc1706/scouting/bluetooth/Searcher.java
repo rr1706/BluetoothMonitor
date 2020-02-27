@@ -18,15 +18,19 @@ public class Searcher extends Thread {
 	private final Vector<RemoteDevice> vecDevices = new Vector<RemoteDevice>();
 	private final Map<String, DeviceWatcher> deviceWatchers = new HashMap<String, DeviceWatcher>();
 
+	private final String[] exclusions = { "trackpad", "speaker", "iphone", "mac", "idevice", "ipad", "mouse" };
+
+	private boolean done = false;
+
 	@Override
 	public void run() {
-		System.out.println("Searching...");
+		System.out.println("Searching for known bluetooth devices...");
 		try {
 			LocalDevice localDevice = LocalDevice.getLocalDevice();
 			agent = localDevice.getDiscoveryAgent();
 			System.out.println("Got discovery agent: " + agent.toString() + ", starting discovery...");
 
-			while (true) {
+			while (!done) {
 				RemoteDevice[] preknownDevices = agent.retrieveDevices(DiscoveryAgent.PREKNOWN);
 				Arrays.sort(preknownDevices, new Comparator<RemoteDevice>() {
 					public int compare(RemoteDevice o1, RemoteDevice o2) {
@@ -40,7 +44,14 @@ public class Searcher extends Thread {
 				if (preknownDevices != null && preknownDevices.length > 0) {
 					for (RemoteDevice dev : preknownDevices) {
 						String devName = dev.getFriendlyName(false).toUpperCase();
-						if (!(devName.contains("MOUSE") || devName.contains("IDEVICE") || devName.contains("IPAD"))) {
+						boolean excluded = false;
+						for (String ex : exclusions) {
+							if (devName.contains(ex.toUpperCase())) {
+								excluded = true;
+								break;
+							}
+						}
+						if (!excluded) {
 							if (!vecDevices.contains(dev)) {
 								vecDevices.add(dev);
 								final DeviceWatcher watcher = new DeviceWatcher(dev, agent);
@@ -56,11 +67,6 @@ public class Searcher extends Thread {
 									}
 								});
 
-								try {
-									Thread.sleep(5000);
-								} catch (InterruptedException e) {
-									e.printStackTrace();
-								}
 								System.out.println("Found: " + dev.getBluetoothAddress() + " ("
 										+ dev.getFriendlyName(false) + ")");
 							}
@@ -89,6 +95,14 @@ public class Searcher extends Thread {
 			e1.printStackTrace();
 		}
 
+	}
+
+	public void shutdown() {
+		for (DeviceWatcher watcher : deviceWatchers.values()) {
+			watcher.setDone(true);
+		}
+
+		done = true;
 	}
 
 	public void sendMessageToAll(String message) {
