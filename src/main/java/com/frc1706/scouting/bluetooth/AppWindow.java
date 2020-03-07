@@ -32,6 +32,7 @@ public class AppWindow {
 		String name;
 		DeviceWatcher watcher;
 		JLabel statusLabel;
+		JButton sendButton;
 	}
 
 	private int lastRowUsed = 5;
@@ -130,7 +131,7 @@ public class AppWindow {
 			}
 		});
 
-		btnSendFile = new JButton("Send File...");
+		btnSendFile = new JButton("Send File to All...");
 		btnSendFile.setEnabled(false);
 		btnSendFile.addActionListener(new ActionListener() {
 
@@ -217,6 +218,35 @@ public class AppWindow {
 		gbc_status.gridx = 1;
 		gbc_status.gridy = lastRowUsed;
 		frmBluetoothDeviceMonitor.getContentPane().add(index.statusLabel, gbc_status);
+
+		index.sendButton = new JButton("...");
+		index.sendButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JButton btn = (JButton) e.getSource();
+				for (DeviceIndex idx : deviceList) {
+					if (idx.sendButton == btn) {
+						int returnVal = fc.showOpenDialog(btnSendFile);
+
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							File file = fc.getSelectedFile();
+							if (file != null) {
+								idx.watcher.sendFile(file);
+							}
+						} else {
+							// log.append("Open command cancelled by user." +
+							// newline);
+						}
+					}
+				}
+			}
+		});
+		GridBagConstraints gbc_btnSendFile = new GridBagConstraints();
+		gbc_btnSendFile.insets = new Insets(0, 0, 0, 5);
+		gbc_btnSendFile.gridx = 2;
+		gbc_btnSendFile.gridy = lastRowUsed;
+		frmBluetoothDeviceMonitor.getContentPane().add(index.sendButton, gbc_btnSendFile);
 
 		deviceList.add(index);
 		frmBluetoothDeviceMonitor.pack();
