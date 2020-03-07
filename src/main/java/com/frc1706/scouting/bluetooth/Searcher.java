@@ -1,6 +1,7 @@
 package com.frc1706.scouting.bluetooth;
 
 import java.awt.EventQueue;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -33,6 +34,7 @@ public class Searcher extends Thread {
 			while (!done) {
 				RemoteDevice[] preknownDevices = agent.retrieveDevices(DiscoveryAgent.PREKNOWN);
 				Arrays.sort(preknownDevices, new Comparator<RemoteDevice>() {
+					@Override
 					public int compare(RemoteDevice o1, RemoteDevice o2) {
 						try {
 							return o1.getFriendlyName(false).compareTo(o2.getFriendlyName(false));
@@ -58,6 +60,7 @@ public class Searcher extends Thread {
 								watcher.start();
 								deviceWatchers.put(dev.getBluetoothAddress(), watcher);
 								EventQueue.invokeLater(new Runnable() {
+									@Override
 									public void run() {
 										try {
 											App.window.addDeviceWatcher(watcher);
@@ -108,6 +111,12 @@ public class Searcher extends Thread {
 	public void sendMessageToAll(String message) {
 		for (DeviceWatcher watcher : deviceWatchers.values()) {
 			watcher.sendMessage(message);
+		}
+	}
+
+	public void sendFileToAll(File file) {
+		for (DeviceWatcher watcher : deviceWatchers.values()) {
+			watcher.sendFile(file);
 		}
 	}
 

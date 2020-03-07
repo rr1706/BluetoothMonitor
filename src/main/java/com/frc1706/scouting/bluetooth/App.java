@@ -1,6 +1,7 @@
 package com.frc1706.scouting.bluetooth;
 
 import java.awt.EventQueue;
+import java.io.File;
 import java.util.Calendar;
 
 import javax.bluetooth.UUID;
@@ -26,6 +27,7 @@ public class App {
 		}
 
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					window = new AppWindow(eventID);
@@ -56,6 +58,12 @@ public class App {
 	public static void sendMessageToAll(String message) {
 		if (searcher != null) {
 			searcher.sendMessageToAll(message);
+		}
+	}
+
+	public static void sendFileToAll(File f) {
+		if (searcher != null) {
+			searcher.sendFileToAll(f);
 		}
 	}
 

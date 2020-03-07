@@ -2,6 +2,7 @@ package com.frc1706.scouting.bluetooth;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +24,7 @@ public class DeviceMonitor extends Thread {
 	private String message = null;
 	private RemoteDevice device = null;
 	private String deviceName = null;
+	private final ArrayList<File> files = new ArrayList<File>();
 
 	public void shutdown() {
 		done = true;
@@ -41,6 +43,11 @@ public class DeviceMonitor extends Thread {
 	public void sendMessage(String message) {
 		System.err.println("Message queued for device " + message);
 		this.message = message;
+	}
+
+	public void sendFile(File file) {
+		System.err.println("File " + file.getName() + " queued for device " + file.getName());
+		this.files.add(file);
 	}
 
 	public void combineFiles() {
@@ -109,6 +116,22 @@ public class DeviceMonitor extends Thread {
 					pWriter.println("toast " + message);
 					pWriter.flush();
 					message = null;
+				}
+				if (files.size() > 0) {
+					File f = files.remove(0);
+					if (f != null) {
+						try {
+							System.err.println("Sending file " + f.getName() + " to device " + deviceName);
+							String contents = readFile(f);
+							if ((contents != null) && (contents.length() > 0)) {
+								pWriter.println("put " + f.getName() + " " + contents.length());
+								pWriter.write(contents);
+								pWriter.flush();
+							}
+						} catch (Exception e) {
+							files.add(f);
+						}
+					}
 				}
 				pWriter.println("list");
 				pWriter.flush();
@@ -205,6 +228,19 @@ public class DeviceMonitor extends Thread {
 			}
 		}
 
+	}
+
+	private static String readFile(File f) {
+		try {
+			FileReader reader = new FileReader(f);
+			char[] buffer = new char[(int) f.length()];
+			reader.read(buffer, 0, (int) f.length());
+			reader.close();
+			return new String(buffer);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 
 }

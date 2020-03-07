@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -39,6 +40,10 @@ public class AppWindow {
 	private JLabel lblEventName;
 	private JLabel lblMessage;
 	private JButton btnStartMonitoring;
+	private JButton btnSendFile;
+
+	// Create a file chooser
+	final JFileChooser fc = new JFileChooser();
 
 	/**
 	 * Create the application.
@@ -57,6 +62,7 @@ public class AppWindow {
 		frmBluetoothDeviceMonitor.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent evt) {
+				frmBluetoothDeviceMonitor.setTitle("Shutting down...");
 				App.stopSearching();
 				try {
 					Thread.sleep(30000);
@@ -116,10 +122,37 @@ public class AppWindow {
 
 		btnStartMonitoring = new JButton("Start Monitoring");
 		btnStartMonitoring.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				App.startSearching();
+				btnSendFile.setEnabled(true);
+				btnStartMonitoring.setEnabled(false);
 			}
 		});
+
+		btnSendFile = new JButton("Send File...");
+		btnSendFile.setEnabled(false);
+		btnSendFile.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int returnVal = fc.showOpenDialog(btnSendFile);
+
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					if (file != null) {
+						App.sendFileToAll(file);
+					}
+				} else {
+					// log.append("Open command cancelled by user." + newline);
+				}
+			}
+		});
+		GridBagConstraints gbc_btnSendFile = new GridBagConstraints();
+		gbc_btnSendFile.insets = new Insets(0, 0, 5, 5);
+		gbc_btnSendFile.gridx = 0;
+		gbc_btnSendFile.gridy = 2;
+		frmBluetoothDeviceMonitor.getContentPane().add(btnSendFile, gbc_btnSendFile);
 		GridBagConstraints gbc_btnStartMonitoring = new GridBagConstraints();
 		gbc_btnStartMonitoring.insets = new Insets(0, 0, 5, 0);
 		gbc_btnStartMonitoring.gridx = 1;
@@ -147,6 +180,7 @@ public class AppWindow {
 
 		JButton btnSendMessage = new JButton("Send Message");
 		btnSendMessage.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				App.sendMessageToAll(textField.getText());
 				textField.setText("");
@@ -190,6 +224,7 @@ public class AppWindow {
 
 	public void updateDeviceStatus() {
 		EventQueue.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					for (DeviceIndex idx : deviceList) {

@@ -1,5 +1,7 @@
 package com.frc1706.scouting.bluetooth;
 
+import java.io.File;
+
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DeviceClass;
 import javax.bluetooth.DiscoveryAgent;
@@ -19,6 +21,7 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 	private boolean isSearching = false;
 	private final DiscoveryAgent agent;
 	private String lastMessage = null;
+	private File lastFile = null;
 
 	private static int searchCount = 0;
 
@@ -32,6 +35,14 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 			monitor.sendMessage(message);
 		} else {
 			lastMessage = message;
+		}
+	}
+
+	public void sendFile(File file) {
+		if (isOnline()) {
+			monitor.sendFile(file);
+		} else {
+			lastFile = file;
 		}
 	}
 
@@ -77,6 +88,10 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 							monitor.sendMessage(lastMessage);
 							lastMessage = null;
 						}
+						if (lastFile != null) {
+							monitor.sendFile(lastFile);
+							lastFile = null;
+						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -109,17 +124,21 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 		this.done = done;
 	}
 
+	@Override
 	public void deviceDiscovered(RemoteDevice arg0, DeviceClass arg1) {
 	}
 
+	@Override
 	public void inquiryCompleted(int arg0) {
 	}
 
+	@Override
 	public void serviceSearchCompleted(int arg0, int arg1) {
 		isSearching = false;
 		searchCount--;
 	}
 
+	@Override
 	public void servicesDiscovered(int transID, ServiceRecord[] servRecord) {
 		if (servRecord != null && servRecord.length > 0) {
 			connectionURL = servRecord[0].getConnectionURL(0, false);
