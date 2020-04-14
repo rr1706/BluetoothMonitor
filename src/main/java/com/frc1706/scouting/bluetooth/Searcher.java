@@ -84,7 +84,7 @@ public class Searcher extends Thread {
 				}
 
 				try {
-					Thread.sleep(2000);
+					sleep(2000);
 				} catch (InterruptedException u) {
 				}
 				try {
@@ -103,9 +103,11 @@ public class Searcher extends Thread {
 	public void shutdown() {
 		for (DeviceWatcher watcher : deviceWatchers.values()) {
 			watcher.setDone(true);
+			watcher.interrupt();
 		}
 
 		done = true;
+		interrupt();
 	}
 
 	public void sendMessageToAll(String message) {

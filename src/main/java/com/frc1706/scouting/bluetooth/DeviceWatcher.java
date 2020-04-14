@@ -121,7 +121,11 @@ public class DeviceWatcher extends Thread implements DiscoveryListener {
 	 *            the done to set
 	 */
 	public void setDone(boolean done) {
+		if (monitor != null && monitor.isAlive()) {
+			monitor.shutdown();
+		}
 		this.done = done;
+		interrupt();
 	}
 
 	@Override

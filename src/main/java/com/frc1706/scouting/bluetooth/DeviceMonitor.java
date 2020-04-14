@@ -25,9 +25,13 @@ public class DeviceMonitor extends Thread {
 	private RemoteDevice device = null;
 	private String deviceName = null;
 	private final ArrayList<File> files = new ArrayList<File>();
+	private boolean isSleeping = false;
 
 	public void shutdown() {
 		done = true;
+		if (isSleeping) {
+			this.interrupt();
+		}
 	}
 
 	public DeviceMonitor(StreamConnection conn, RemoteDevice remoteDevice) {
@@ -196,9 +200,14 @@ public class DeviceMonitor extends Thread {
 					}
 				}
 				try {
-					sleep(12000);
+					if (!done) {
+						isSleeping = true;
+						sleep(12000);
+					}
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					// e.printStackTrace();
+				} finally {
+					isSleeping = false;
 				}
 			}
 		} catch (IOException ioe) {
