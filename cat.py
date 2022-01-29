@@ -25,7 +25,7 @@ filename = '2018_STL_cat.csv'
 if len(sys.argv) > 1:
   filename = sys.argv[1]
 
-with open(filename, 'wb') as outfile:
+with open(filename, 'w') as outfile:
   w = csv.DictWriter(outfile, fieldnames=headers)
   w.writeheader()
   for line in data:
